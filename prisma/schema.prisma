@@ -1,0 +1,20 @@
+datasource db {
+    provider = "postgresql"
+    url      = "postgresql://postgres:postgres@localhost:5432/postgres"
+}
+
+generator client {
+    provider = "prisma-client-js"
+}
+
+model Product {
+    id          Int      @id @default(autoincrement())
+    name        String   @unique
+    price       Float
+    description String?
+    quantity    Int
+    createdAt   DateTime @default(now()) @map("created_at")
+    updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+    @@map("products")
+}
