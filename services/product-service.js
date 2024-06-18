@@ -31,9 +31,14 @@ const update = async (req, reply) => {
 
 const remove = async (req, reply) => {
   const { id } = req.params;
-  const product = await prisma.product.delete({
+  const product = await prisma.product.findUnique({
     where: { id: parseInt(id) },
   });
+  if (!product) {
+    reply.status(404).send();
+    return;
+  }
+  await prisma.product.delete({ where: { id: parseInt(id) } });
   reply.status(204).send();
 };
 
@@ -42,6 +47,11 @@ const buy = async (req, reply) => {
   const product = await prisma.product.findUnique({
     where: { id: parseInt(id) },
   });
+  if (!product) {
+    reply.status(404).send();
+    return;
+  }
+
   if (product.quantity > 0) {
     await prisma.product.update({
       where: { id: parseInt(id) },
@@ -59,4 +69,5 @@ module.exports = {
   create,
   update,
   remove,
+  buy,
 };
