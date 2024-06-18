@@ -9,5 +9,11 @@
   "keywords": [],
   "author": "André Victor",
   "license": "ISC",
-  "description": "A simple API for ClickMart"
+  "description": "A simple API for ClickMart",
+  "devDependencies": {
+    "prisma": "^5.15.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.15.0"
+  }
 }
