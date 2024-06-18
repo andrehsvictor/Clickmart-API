@@ -3,17 +3,22 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "test": "mocha test.js",
+    "setup": "docker-compose up -d",
+    "start": "prisma migrate dev --name init && node server.js"
   },
   "keywords": [],
   "author": "André Victor",
   "license": "ISC",
   "description": "A simple API for ClickMart",
   "devDependencies": {
-    "prisma": "^5.15.0"
+    "chai": "^5.1.1",
+    "mocha": "^10.4.0",
+    "prisma": "^5.15.0",
+    "supertest": "^7.0.0"
   },
   "dependencies": {
-    "@prisma/client": "^5.15.0"
+    "@prisma/client": "^5.15.0",
+    "fastify": "^4.28.0"
   }
 }
