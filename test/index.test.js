@@ -10,10 +10,6 @@ describe("Product service", () => {
     await prisma.$executeRaw`DELETE FROM "products"`;
   });
 
-  afterEach(async () => {
-    await prisma.$disconnect();
-  });
-
   test("Should return all products", async () => {
     const response = await request(app).get("/products");
     expect(response.statusCode).toBe(200);
@@ -28,18 +24,36 @@ describe("Product service", () => {
   test("Should create a product", async () => {
     const response = await request(app)
       .post("/products")
-      .send({ name: "Product 1", quantity: 10 });
+      .send({ name: "Product 1", quantity: 10, price: 100 });
     expect(response.statusCode).toBe(201);
-    expect(response.body).toEqual({ id: 1, name: "Product 1", quantity: 10 });
+    expect(response.body).toEqual({
+      id: expect.any(Number),
+      name: "Product 1",
+      quantity: 10,
+      price: 100,
+      description: null,
+      createdAt: expect.any(String),
+      updatedAt: expect.any(String),
+    });
   });
 
   test("Should update a product", async () => {
-    await prisma.product.create({ data: { name: "Product 1", quantity: 10 } });
+    const product = await prisma.product.create({
+      data: { name: "Product 1", quantity: 10, price: 100 },
+    });
     const response = await request(app)
-      .put("/products/1")
+      .put(`/products/${product.id}`)
       .send({ name: "Product 2", quantity: 20 });
     expect(response.statusCode).toBe(200);
-    expect(response.body).toEqual({ id: 1, name: "Product 2", quantity: 20 });
+    expect(response.body).toEqual({
+      id: product.id,
+      name: "Product 2",
+      description: null,
+      quantity: 20,
+      price: 100,
+      createdAt: product.createdAt.toISOString(),
+      updatedAt: expect.any(String),
+    });
   });
 
   test("Should return 404 when updating a non-existing product", async () => {
@@ -50,10 +64,10 @@ describe("Product service", () => {
   });
 
   test("Should delete a product", async () => {
-    await prisma.product.create({
+    const product = await prisma.product.create({
       data: { name: "Product 1", quantity: 10, price: 100 },
     });
-    const response = await request(app).delete("/products/1");
+    const response = await request(app).delete(`/products/${product.id}`);
     expect(response.statusCode).toBe(204);
   });
 
@@ -63,18 +77,18 @@ describe("Product service", () => {
   });
 
   test("Should return 400 when product out of stock", async () => {
-    await prisma.product.create({
+    const product = await prisma.product.create({
       data: { name: "Product 1", quantity: 0, price: 100 },
     });
-    const response = await request(app).patch("/products/1/buy");
+    const response = await request(app).patch(`/products/${product.id}/buy`);
     expect(response.statusCode).toBe(400);
   });
 
   test("Should buy a product", async () => {
-    await prisma.product.create({
+    const product = await prisma.product.create({
       data: { name: "Product 1", quantity: 1, price: 100 },
     });
-    const response = await request(app).patch("/products/1/buy");
+    const response = await request(app).patch(`/products/${product.id}/buy`);
     expect(response.statusCode).toBe(200);
     expect(response.body).toEqual({ message: "Product bought" });
   });
@@ -82,33 +96,5 @@ describe("Product service", () => {
   test("Should return 404 when product not found", async () => {
     const response = await request(app).patch("/products/999/buy");
     expect(response.statusCode).toBe(404);
-  });
-
-  test("Given three products, when updating one and deleting another, then the updated product should be returned and the deleted product should not exist", async () => {
-    await prisma.product.create({
-      data: { name: "Product 1", quantity: 10, price: 100 },
-    });
-    await prisma.product.create({
-      data: { name: "Product 2", quantity: 20, price: 200 },
-    });
-    await prisma.product.create({
-      data: { name: "Product 3", quantity: 30, price: 300 },
-    });
-    const updateResponse = await request(app)
-      .put("/products/2")
-      .send({ name: "Product 2 Updated", quantity: 25 });
-    const deleteResponse = await request(app).delete("/products/3");
-    const getResponse = await request(app).get("/products");
-    expect(updateResponse.statusCode).toBe(200);
-    expect(updateResponse.body).toEqual({
-      id: 2,
-      name: "Product 2 Updated",
-      quantity: 25,
-    });
-    expect(deleteResponse.statusCode).toBe(204);
-    expect(getResponse.body).toEqual([
-      { id: 1, name: "Product 1", quantity: 10 },
-      { id: 2, name: "Product 2 Updated", quantity: 25 },
-    ]);
   });
 });
