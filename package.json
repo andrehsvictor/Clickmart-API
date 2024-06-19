@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --detectOpenHandles --forceExit",
     "setup": "docker-compose up -d",
     "start": "prisma migrate dev --name init && node index.js"
   },
