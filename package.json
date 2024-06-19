@@ -5,7 +5,7 @@
   "scripts": {
     "test": "jest",
     "setup": "docker-compose up -d",
-    "start": "prisma migrate dev --name init && node server.js"
+    "start": "prisma migrate dev --name init && node index.js"
   },
   "keywords": [],
   "author": "André Victor",
