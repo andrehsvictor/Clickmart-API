@@ -22,11 +22,18 @@ const create = async (req, reply) => {
 
 const update = async (req, reply) => {
   const { id } = req.params;
-  const product = await prisma.product.update({
+  const product = await prisma.product.findUnique({
+    where: { id: parseInt(id) },
+  });
+  if (!product) {
+    reply.status(404).send();
+    return;
+  }
+  const updatedProduct = await prisma.product.update({
     where: { id: parseInt(id) },
     data: req.body,
   });
-  product ? reply.send(product) : reply.status(404).send();
+  reply.send(updatedProduct);
 };
 
 const remove = async (req, reply) => {
