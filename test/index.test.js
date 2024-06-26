@@ -11,6 +11,7 @@ describe("Product service", () => {
   });
 
   test("Should return all products", async () => {
+    setTimeout(async () => {}, 1000);
     const response = await request(app).get("/products");
     expect(response.statusCode).toBe(200);
     expect(response.body).toEqual([]);
