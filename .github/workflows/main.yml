@@ -27,6 +27,9 @@ jobs:
 
       - name: Setup PostgreSQL
         run: npm run setup
+
+      - name: Install Prisma CLI
+        run: npm install @prisma/cli --save-dev
       
       - name: Setup Prisma
         run: prisma migrate dev --name init
